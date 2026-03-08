@@ -11,9 +11,6 @@ from datetime import datetime
 router = APIRouter()
 security = HTTPBearer()
 
-
-# ==================== SCHEMAS ====================
-
 class SignalResponse(BaseModel):
     id: int
     symbol: str

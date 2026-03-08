@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.core.config import settings
-from app.api.routes import auth, users, signals, market, analytics, subscriptions, alerts
+import app.api.routes as routes
 
 
 @asynccontextmanager
@@ -39,14 +39,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routes
-app.include_router(auth.router, prefix="/api/auth", tags=["Autenticação"])
-app.include_router(users.router, prefix="/api/users", tags=["Usuários"])
-app.include_router(signals.router, prefix="/api/signals", tags=["Sinais"])
-app.include_router(market.router, prefix="/api/market", tags=["Mercado"])
-app.include_router(analytics.router, prefix="/api/analytics", tags=["Análises"])
-app.include_router(subscriptions.router, prefix="/api/subscriptions", tags=["Assinaturas"])
-app.include_router(alerts.router, prefix="/api/alerts", tags=["Alertas"])
+# Routes (using the unified routes module)
+app.include_router(routes.router, prefix="/api", tags=["API"])
 
 
 @app.get("/")
