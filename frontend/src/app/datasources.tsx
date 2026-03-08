@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Layout from '../components/Layout';
+import Layout from '../components/layout/Layout';
 import { apiClient } from '../api';
 
 type Tab = 'status' | 'csv' | 'rtd' | 'dll' | 'api';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
-import SignalsTable from '../components/SignalsTable';
+import Layout from '../components/layout/Layout';
+import SignalsTable from '../components/layout/SignalsTable';
 import { apiClient } from '../api';
 
 export default function History() {

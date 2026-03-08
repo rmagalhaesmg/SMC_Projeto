@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import Layout from '../components/Layout';
-import StatCard from '../components/StatCard';
-import SignalsTable from '../components/SignalsTable';
+import Layout from '../components/layout/Layout';
+import StatCard from '../components/layout/StatCard';
+import SignalsTable from '../components/layout/SignalsTable';
 import { apiClient } from '../api';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
