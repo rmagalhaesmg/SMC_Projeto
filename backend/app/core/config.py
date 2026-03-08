@@ -2,9 +2,11 @@
 Configurações Centralizadas do Sistema
 """
 
-from pydantic_settings import BaseSettings
-from typing import List
+import json
 import os
+from typing import List
+
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -27,11 +29,14 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
     
-    # CORS
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-    ]
+    # CORS - Suporta variável de ambiente (formato JSON array)
+    # Exemplo: ALLOWED_ORIGINS='["http://localhost:3000","https://smcprojeto-production.up.railway.app"]'
+    ALLOWED_ORIGINS: List[str] = json.loads(
+        os.getenv(
+            "ALLOWED_ORIGINS",
+            '["http://localhost:3000","http://localhost:5173","https://smcprojeto-production.up.railway.app"]'
+        )
+    )
     
     # OAuth Google
     GOOGLE_CLIENT_ID: str = ""
