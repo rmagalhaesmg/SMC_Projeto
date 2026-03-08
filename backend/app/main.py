@@ -29,40 +29,14 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Iniciando SMC Analysis Backend...")
 
     # Setup DB
-    from app.core.database import engine, Base, SessionLocal, DATABASE_URL
+    from app.core.database import engine, Base, AsyncSessionLocal
 
-    if DATABASE_URL.startswith("sqlite"):
-        path = DATABASE_URL.replace("sqlite:///", "")
-        dirpath = os.path.dirname(path)
-        if dirpath and not os.path.exists(dirpath):
-            os.makedirs(dirpath, exist_ok=True)
-
-    Base.metadata.create_all(bind=engine)
-
-    # Create default admin user if none exists
-    from passlib.context import CryptContext
-    pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    from app.models.user import User
+    await engine.connect()
+    await engine.run_sync(Base.metadata.create_all)
     
-    db = SessionLocal()
-    try:
-        if not db.query(User).first():
-            admin = User(
-                email="admin@smc.local",
-                password_hash=pwd_ctx.hash("admin"),
-                is_active=True
-            )
-            db.add(admin)
-            db.commit()
-            logger.info("✅ Admin padrão criado: admin@smc.local / admin")
-    except Exception as e:
-        db.rollback()
-        logger.warning(f"Erro ao criar admin padrão: {e}")
-    finally:
-        db.close()
-
     logger.info("✅ Backend pronto")
     yield
+    await engine.dispose()
     logger.info("👋 Backend encerrado")
 
 
