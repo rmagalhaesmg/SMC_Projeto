@@ -12,6 +12,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Disable Next.js telemetry during builds
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Build the application
 RUN npm run build
 
