@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const BACKEND = process.env.REACT_APP_API_URL || 'https://smcanalisys-production-4d47.up.railway.app';
+const BACKEND = process.env.REACT_APP_API_URL || 'https://smcprojeto-production-83e5.up.railway.app/';
 
 export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const { user, logout } = useAuth();

@@ -1,7 +1,6 @@
 """
-SMC SaaS - Backend Principal (Clean Version)
-FastAPI + Auth + Alerts + AI + Billing + WebSocket
-Deploy: Railway
+SMC SaaS - Backend Principal
+FastAPI - Deploy: Railway
 """
 import os
 import sys
@@ -12,7 +11,7 @@ from datetime import datetime, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Path setup for engines
+# Path setup
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
@@ -30,9 +29,7 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Iniciando SMC Analysis Backend...")
 
     # Setup DB
-    from app.database import engine, Base, SessionLocal, DATABASE_URL
-    from app.auth.models import User, Subscription
-    from app.models.signal import Signal
+    from app.core.database import engine, Base, SessionLocal, DATABASE_URL
 
     if DATABASE_URL.startswith("sqlite"):
         path = DATABASE_URL.replace("sqlite:///", "")
@@ -45,6 +42,8 @@ async def lifespan(app: FastAPI):
     # Create default admin user if none exists
     from passlib.context import CryptContext
     pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    from app.models.user import User
+    
     db = SessionLocal()
     try:
         if not db.query(User).first():
@@ -54,9 +53,6 @@ async def lifespan(app: FastAPI):
                 is_active=True
             )
             db.add(admin)
-            db.flush()
-            sub = Subscription(user_id=admin.id, plan="admin", status="active")
-            db.add(sub)
             db.commit()
             logger.info("✅ Admin padrão criado: admin@smc.local / admin")
     except Exception as e:
@@ -75,12 +71,12 @@ async def lifespan(app: FastAPI):
 # ============================================================
 app = FastAPI(
     title="SMC Analysis API",
-    description="Sistema de Análise SMC com IA — v2.3",
-    version="2.3.0",
+    description="Sistema de Análise SMC com IA",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
-# CORS — em prod, troque por seus domínios
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -94,48 +90,32 @@ app.add_middleware(
 # ============================================================
 
 # Auth
-from app.auth.router import router as auth_router
+from app.api.routes.auth import router as auth_router
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
-# Subscription guard middleware
-from app.middleware.subscription_guard import SubscriptionGuard
-app.add_middleware(SubscriptionGuard)
+# Users
+from app.api.routes.users import router as users_router
+app.include_router(users_router, prefix="/users", tags=["users"])
 
-# Analysis + Stats
-from app.routes.analysis import router as analysis_router
-from app.routes.stats import router as stats_router
-app.include_router(analysis_router, prefix="/analysis", tags=["analysis"])
-app.include_router(stats_router, prefix="/analysis", tags=["stats"])
-
-# Billing
-from app.billing.router import router as billing_router
-from app.billing.webhooks import router as webhook_router
-app.include_router(billing_router, prefix="/billing", tags=["billing"])
-app.include_router(webhook_router, prefix="/billing/webhook", tags=["webhooks"])
-
-# Alerts (Telegram / Email / WhatsApp)
-from app.alerts.router import router as alerts_router
-app.include_router(alerts_router, tags=["alerts"])
-
-# Data ingestion (CSV upload)
-from app.ingestion.csv_upload import router as ingestion_router
-app.include_router(ingestion_router, prefix="/ingestion", tags=["ingestion"])
-
-# WebSocket
-from app.websocket.routes import router as ws_router
-app.include_router(ws_router, tags=["websocket"])
-
-# Admin
-from app.admin.router import router as admin_router
-app.include_router(admin_router, prefix="/admin", tags=["admin"])
-
-# Data routes
-from app.routes.data import router as data_router
-app.include_router(data_router, prefix="/data", tags=["data"])
+# Market
+from app.api.routes.market import router as market_router
+app.include_router(market_router, prefix="/market", tags=["market"])
 
 # Signals
-from app.routes.signals import router as signals_router
-app.include_router(signals_router, tags=["signals"])
+from app.api.routes.signals import router as signals_router
+app.include_router(signals_router, prefix="/signals", tags=["signals"])
+
+# Alerts
+from app.api.routes.alerts import router as alerts_router
+app.include_router(alerts_router, prefix="/alerts", tags=["alerts"])
+
+# Analytics
+from app.api.routes.analytics import router as analytics_router
+app.include_router(analytics_router, prefix="/analytics", tags=["analytics"])
+
+# Subscriptions
+from app.api.routes.subscriptions import router as subscriptions_router
+app.include_router(subscriptions_router, prefix="/subscriptions", tags=["subscriptions"])
 
 
 # ============================================================
@@ -145,7 +125,7 @@ app.include_router(signals_router, tags=["signals"])
 def health():
     return {
         "status": "healthy",
-        "version": "2.3.0",
+        "version": "1.0.0",
         "uptime_seconds": (datetime.now(timezone.utc) - app.state.start_time).total_seconds(),
     }
 
@@ -154,7 +134,7 @@ def health():
 def root():
     return {
         "app": "SMC Analysis API",
-        "version": "2.3.0",
+        "version": "1.0.0",
         "status": "online",
         "docs": "/docs",
     }
@@ -167,3 +147,4 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", "8000"))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
