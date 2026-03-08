@@ -1,0 +1,44 @@
+# FastAPI
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+alembic==1.13.1
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# API
+httpx==0.26.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Payment
+stripe==7.10.0
+mercadopago==2.2.0
+
+# AI
+openai==1.10.0
+google-generativeai==0.4.1
+
+# Data Processing
+pandas==2.2.0
+numpy==1.26.3
+
+# Redis
+redis==5.0.1
+aioredis==2.0.1
+
+# Notifications
+aiohttp==3.9.3
+python-telegram-bot==21.1
+
+# Utils
+python-dateutil==2.8.2
+python-dotenv==1.0.0
+
