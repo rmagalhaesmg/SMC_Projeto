@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Layout from '../components/Layout';
+import Layout from '../components/layout/Layout';
 import { apiClient } from '../api';
 
 type Msg = { role: 'user' | 'assistant'; content: string; ts: string };
