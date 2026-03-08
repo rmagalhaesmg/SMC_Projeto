@@ -1,19 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './components/context/AuthContext';
 import './index.css';
 
 // Pages
-import Login from './pages/login';
-import Register from './pages/register';
-import Dashboard from './pages/dashboard';
-import History from './pages/history';
-import Reports from './pages/reports';
-import DataSources from './pages/datasources';
-import Alerts from './pages/alerts';
-import Assistant from './pages/assistant';
-import Settings from './pages/settings';
-import Billing from './pages/billing';
+import Login from './app/login';
+import Register from './app/register';
+import Dashboard from './app/dashboard';
+import History from './app/history';
+import Reports from './app/reports';
+import DataSources from './app/datasources';
+import Alerts from './app/alerts';
+import Assistant from './app/assistant';
+import Settings from './app/settings';
+import Billing from './app/billing';
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -62,3 +62,4 @@ function App() {
 }
 
 export default App;
+
