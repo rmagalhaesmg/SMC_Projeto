@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { apiClient } from '../api';
+import { apiClient } from '../../api';
 
 type Msg = { role: 'user' | 'assistant'; content: string; ts?: string };
 
