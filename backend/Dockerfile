@@ -18,9 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY . .
 
-# Create database tables
-RUN python -c "from app.core.database import init_db; init_db()"
-
 # Expose port
 EXPOSE 8000
 
