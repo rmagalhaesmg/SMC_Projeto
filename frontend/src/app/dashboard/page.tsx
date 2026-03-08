@@ -1,9 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import Topbar from '@/components/layout/Topbar'
 import KPICard from '@/components/dashboard/KPICard'
+import FloatingMenu from '@/components/ui/FloatingMenu'
+import { createSMCWebSocket, RealtimeMessage } from '@/services/realtime'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -17,10 +19,23 @@ import {
 } from 'lucide-react'
 
 export default function Dashboard() {
+  const [lastMsg, setLastMsg] = useState<RealtimeMessage | null>(null)
+  const scores = lastMsg?.scores
+  useEffect(() => {
+    const ws = createSMCWebSocket((msg) => setLastMsg(msg))
+    return () => ws.close()
+  }, [])
+  const estadoLabel = useMemo(() => {
+    if (!scores) return '---'
+    if (scores.estado_mercado === 1) return 'Tendência'
+    if (scores.estado_mercado === 0) return 'Lateral'
+    return 'Transição'
+  }, [scores])
   return (
     <div className="min-h-screen bg-bg-primary">
       <Sidebar />
       <Topbar />
+      <FloatingMenu />
       
       <main className="ml-[260px] pt-16">
         <div className="p-6">
@@ -34,22 +49,20 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Status Indicator */}
           <div className="flex items-center gap-3 mb-6 p-4 bg-bg-card rounded-lg border border-border-primary">
             <div className="w-3 h-3 rounded-full bg-accent-success live-indicator" />
             <span className="text-sm text-text-secondary">
-              Mercado Aberto • WIN • 09:45:32
+              Mercado Aberto • WIN • {new Date().toLocaleTimeString()}
             </span>
             <span className="ml-auto text-sm text-accent-success">
               Sinais ativos
             </span>
           </div>
 
-          {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <KPICard
               title="Score Compra"
-              value="72"
+              value={scores ? Math.round(scores.final * 100) : '—'}
               change={5.2}
               changeLabel="vs ontem"
               icon={<TrendingUp className="w-5 h-5" />}
@@ -57,7 +70,7 @@ export default function Dashboard() {
             />
             <KPICard
               title="Score Venda"
-              value="28"
+              value={scores ? Math.max(0, 100 - Math.round(scores.final * 100)) : '—'}
               change={-3.1}
               changeLabel="vs ontem"
               icon={<TrendingDown className="w-5 h-5" />}
@@ -65,19 +78,18 @@ export default function Dashboard() {
             />
             <KPICard
               title="Estado Mercado"
-              value="Compra"
+              value={scores ? scores.direction === 'buy' ? 'Compra' : 'Venda' : '—'}
               icon={<Target className="w-5 h-5" />}
               variant="success"
             />
             <KPICard
               title="Qualidade Setup"
-              value="8/10"
+              value={scores ? `${scores.qualidade_setup}/10` : '—'}
               icon={<Zap className="w-5 h-5" />}
               variant="default"
             />
           </div>
 
-          {/* Module Scores */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
             <div className="card">
               <div className="flex items-center justify-between mb-3">
@@ -86,9 +98,9 @@ export default function Dashboard() {
                   Microestrutura
                 </span>
               </div>
-              <div className="text-2xl font-display font-bold text-accent-primary">0.72</div>
+              <div className="text-2xl font-display font-bold text-accent-primary">{scores ? scores.hfz.toFixed(2) : '—'}</div>
               <div className="mt-2 h-2 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-accent-primary rounded-full" style={{ width: '72%' }} />
+                <div className="h-full bg-accent-primary rounded-full" style={{ width: `${scores ? Math.round(scores.hfz * 100) : 0}%` }} />
               </div>
             </div>
 
@@ -99,9 +111,9 @@ export default function Dashboard() {
                   Zonas
                 </span>
               </div>
-              <div className="text-2xl font-display font-bold text-accent-warning">0.85</div>
+              <div className="text-2xl font-display font-bold text-accent-warning">{scores ? scores.fbi.toFixed(2) : '—'}</div>
               <div className="mt-2 h-2 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-accent-warning rounded-full" style={{ width: '85%' }} />
+                <div className="h-full bg-accent-warning rounded-full" style={{ width: `${scores ? Math.round(scores.fbi * 100) : 0}%` }} />
               </div>
             </div>
 
@@ -112,9 +124,9 @@ export default function Dashboard() {
                   Traps
                 </span>
               </div>
-              <div className="text-2xl font-display font-bold text-accent-danger">0.65</div>
+              <div className="text-2xl font-display font-bold text-accent-danger">{scores ? scores.dtm.toFixed(2) : '—'}</div>
               <div className="mt-2 h-2 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-accent-danger rounded-full" style={{ width: '65%' }} />
+                <div className="h-full bg-accent-danger rounded-full" style={{ width: `${scores ? Math.round(scores.dtm * 100) : 0}%` }} />
               </div>
             </div>
 
@@ -125,9 +137,9 @@ export default function Dashboard() {
                   Regime
                 </span>
               </div>
-              <div className="text-2xl font-display font-bold text-accent-secondary">0.58</div>
+              <div className="text-2xl font-display font-bold text-accent-secondary">{scores ? scores.sda.toFixed(2) : '—'}</div>
               <div className="mt-2 h-2 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-accent-secondary rounded-full" style={{ width: '58%' }} />
+                <div className="h-full bg-accent-secondary rounded-full" style={{ width: `${scores ? Math.round(scores.sda * 100) : 0}%` }} />
               </div>
             </div>
 
@@ -138,9 +150,9 @@ export default function Dashboard() {
                   Multi-TF
                 </span>
               </div>
-              <div className="text-2xl font-display font-bold text-trade-liquidity">0.81</div>
+              <div className="text-2xl font-display font-bold text-trade-liquidity">{scores ? scores.mtv.toFixed(2) : '—'}</div>
               <div className="mt-2 h-2 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-trade-liquidity rounded-full" style={{ width: '81%' }} />
+                <div className="h-full bg-trade-liquidity rounded-full" style={{ width: `${scores ? Math.round(scores.mtv * 100) : 0}%` }} />
               </div>
             </div>
           </div>
@@ -284,9 +296,11 @@ export default function Dashboard() {
                 Análise Multi-Timeframe
               </h2>
               <div className="flex gap-2">
-                <span className="text-xs px-3 py-1 rounded bg-accent-success/20 text-accent-success">
-                  Confluência: ALTA
-                </span>
+                {scores && (
+                  <span className="text-xs px-3 py-1 rounded bg-accent-success/20 text-accent-success">
+                    Confluência: {scores.mtv > 0.7 ? 'ALTA' : scores.mtv > 0.4 ? 'MÉDIA' : 'BAIXA'}
+                  </span>
+                )}
               </div>
             </div>
 
